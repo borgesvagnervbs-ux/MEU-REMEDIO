@@ -3,100 +3,60 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Lembrete de Medicamentos (Web)</title>
-<style>
-  :root{
-    --accent:#0d9488;
-    --danger:#ef4444;
-    --bg:#f8fafc;
-    --card:#ffffff;
-    --text:#0f172a;
-  }
-  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;}
-  body{margin:0;background:var(--bg);color:var(--text);padding:16px}
-  .container{max-width:720px;margin:0 auto}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-  header h1{font-size:1.1rem;margin:0}
-  .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.06);margin-bottom:12px}
-  label{font-weight:600;font-size:.85rem;display:block;margin-bottom:6px}
-  input[type=text], input[type=number], input[type=time], input[type=datetime-local], select {width:100%;padding:10px;border:1px solid #e6eef2;border-radius:8px}
-  .row{display:flex;gap:12px}
-  .row .col{flex:1}
-  button{background:var(--accent);color:white;padding:12px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
-  button.secondary{background:#e2e8f0;color:var(--text)}
-  .image-preview{width:120px;height:120px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .image-preview img{width:100%;height:100%;object-fit:cover}
-  .med-list{display:grid;grid-template-columns:1fr;gap:12px}
-  .med-item{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:1px solid #e6eef2}
-  .med-item img{width:64px;height:64px;object-fit:cover;border-radius:8px}
-  .med-meta{flex:1}
-  .small{font-size:.85rem;color:#475569}
-  .actions{display:flex;gap:8px}
-  .overlay{
-    position:fixed;inset:0;background:rgba(2,6,23,0.75);display:flex;align-items:center;justify-content:center;z-index:9999;
-  }
-  .overlay-card{background:white;padding:20px;border-radius:12px;text-align:center;max-width:420px;width:90%;}
-  .overlay-card img{width:160px;height:160px;object-fit:contain;border-radius:8px}
-  .big{font-size:1.2rem;font-weight:800;margin:12px 0}
-  footer{margin-top:18px;text-align:center;color:#64748b;font-size:.9rem}
-  @media (min-width:720px){
-    .med-list{grid-template-columns:1fr 1fr}
-  }
-</style>
+<title>Lembrete de Medicamentos (PWA)</title>
+
+<!-- Manifest / PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d9488">
+<link rel="icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-512.png">
+
+<!-- CSS -->
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="container">
     <header>
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#0d9488"/></svg>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#0d9488"/>
+      </svg>
       <div>
-        <h1>Lembrete de Medicamentos (Web)</h1>
+        <h1>Lembrete de Medicamentos (PWA)</h1>
         <div class="small">Fale, fotografe e agende lembretes com som e vibração</div>
       </div>
     </header>
 
     <div class="card" id="formCard">
       <label for="name">Nome do medicamento</label>
-      <div style="display:flex;gap:8px">
+      <div class="row">
         <input id="name" type="text" placeholder="Ex: Paracetamol" />
         <button id="micName" title="Falar nome">🎙️</button>
       </div>
 
-      <div style="height:12px"></div>
-
-      <label for="quantity">Quantidade/ Dose (ex: 2 comprimidos)</label>
-      <div style="display:flex;gap:8px">
+      <label for="quantity">Quantidade / Dose</label>
+      <div class="row">
         <input id="quantity" type="text" placeholder="Ex: 2 comprimidos" />
         <button id="micQty" title="Falar quantidade">🎙️</button>
       </div>
 
-      <div style="height:12px"></div>
-
       <label for="startTime">A partir de (data e hora)</label>
       <input id="startTime" type="datetime-local" />
-
-      <div style="height:12px"></div>
 
       <label for="interval">Intervalo (em minutos)</label>
       <input id="interval" type="number" placeholder="Ex: 480 (8 horas)" min="1" />
 
-      <div style="height:12px"></div>
-
       <label>Foto do remédio (capturar com câmera)</label>
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
-        <div class="image-preview" id="imgPreview"> <span class="small">Sem foto</span> </div>
-        <div style="flex:1">
-          <!-- accept imagem and allow camera capture on mobile -->
-          <input id="photo" type="file" accept="image/*" capture="environment" style="display:block" />
-          <div class="small" style="margin-top:8px">Toque para tirar foto (Android/iOS)</div>
-        </div>
+      <div class="row" style="align-items:center;">
+        <div class="image-preview" id="imgPreview"><span class="small">Sem foto</span></div>
+        <input id="photo" type="file" accept="image/*" capture="environment" />
       </div>
 
-      <div style="display:flex;gap:8px">
+      <div class="row">
         <button id="saveBtn">Salvar lembrete</button>
         <button id="testNow" class="secondary">Testar agora</button>
         <button id="clearAll" class="secondary">Limpar</button>
       </div>
-      <div style="height:8px"></div>
       <div class="small">Permita notificações, microfone e câmera quando solicitado.</div>
     </div>
 
@@ -105,367 +65,20 @@
       <div id="medList" class="med-list"></div>
     </div>
 
-    <footer>Recomendo usar Chrome no Android para melhor compatibilidade.</footer>
+    <footer>Use Chrome no Android para melhor compatibilidade.</footer>
   </div>
 
-  <!-- Overlay que aparece no alarme -->
+  <!-- Overlay do alarme -->
   <div id="overlay" class="overlay" style="display:none">
     <div class="overlay-card">
       <img id="overlayImg" src="" alt="remédio" />
       <div class="big" id="overlayText">Hora de tomar ...</div>
-      <button id="takenBtn" style="background:var(--danger);width:100%;padding:14px;border-radius:10px;border:0;color:white;font-weight:800">TOMEI O REMÉDIO</button>
-      <div style="height:8px"></div>
-      <button id="snoozeBtn" class="secondary" style="width:100%;padding:12px;border-radius:10px">Adiar 10 minutos</button>
+      <button id="takenBtn" class="danger-btn">TOMEI O REMÉDIO</button>
+      <button id="snoozeBtn" class="secondary" style="margin-top:8px">Adiar 10 minutos</button>
     </div>
   </div>
 
-<script>
-/*
-  App Web - Lembrete de Medicamentos
-  - salva em localStorage
-  - usa SpeechRecognition para preencher campos por voz (onde suportado)
-  - usa getUserMedia/file capture para foto (salva como dataURL)
-  - agenda alarmes com setTimeout/setInterval enquanto a aba estiver aberta
-  - quando dispara: overlay, vibrar, TTS e Notification (quando permitido)
-*/
-
-// ---------- utilidades / storage ----------
-const STORAGE_KEY = 'meds_v1'
-let meds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-let timers = {} // map id -> {timeout, interval}
-
-// elementos
-const nameInput = document.getElementById('name')
-const qtyInput = document.getElementById('quantity')
-const startInput = document.getElementById('startTime')
-const intervalInput = document.getElementById('interval')
-const photoInput = document.getElementById('photo')
-const imgPreview = document.getElementById('imgPreview')
-const saveBtn = document.getElementById('saveBtn')
-const medList = document.getElementById('medList')
-const overlay = document.getElementById('overlay')
-const overlayImg = document.getElementById('overlayImg')
-const overlayText = document.getElementById('overlayText')
-const takenBtn = document.getElementById('takenBtn')
-const snoozeBtn = document.getElementById('snoozeBtn')
-const testNowBtn = document.getElementById('testNow')
-const clearAllBtn = document.getElementById('clearAll')
-
-// speech recognition (fill fields by voice)
-const micName = document.getElementById('micName')
-const micQty = document.getElementById('micQty')
-let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null
-
-function startRecognition(onResult){
-  if(!SpeechRecognition){
-    alert('Reconhecimento de voz não suportado nesse navegador.')
-    return
-  }
-  const r = new SpeechRecognition()
-  r.lang = 'pt-BR'
-  r.interimResults = false
-  r.maxAlternatives = 1
-  r.onresult = (e) => {
-    const text = e.results[0][0].transcript
-    onResult(text)
-  }
-  r.onerror = (e) => {
-    console.error('Speech error', e)
-    alert('Erro no reconhecimento de voz: ' + e.error)
-  }
-  r.start()
-}
-
-// photo to dataURL
-photoInput.addEventListener('change', async (ev) => {
-  const f = ev.target.files && ev.target.files[0]
-  if(!f) return
-  const dataUrl = await fileToDataUrl(f)
-  imgPreview.innerHTML = `<img src="${dataUrl}">`
-  imgPreview.dataset.img = dataUrl
-})
-
-async function fileToDataUrl(file){
-  return await new Promise((res, rej) => {
-    const fr = new FileReader()
-    fr.onload = () => res(fr.result)
-    fr.onerror = rej
-    fr.readAsDataURL(file)
-  })
-}
-
-// save med
-saveBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim()
-  const qty = qtyInput.value.trim()
-  const start = startInput.value
-  const intervalMinutes = parseInt(intervalInput.value,10)
-  const img = imgPreview.dataset.img || null
-
-  if(!name || !qty || !start || !intervalMinutes || !img){
-    alert('Preencha todos os campos e tire uma foto do remédio.')
-    return
-  }
-  const id = Date.now().toString()
-  const med = { id, name, qty, start, intervalMinutes, img }
-  meds.push(med)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(meds))
-  scheduleMedication(med)
-  renderList()
-  clearForm()
-  requestNotificationPermission()
-  alert('Lembrete salvo.')
-})
-
-// clear all
-clearAllBtn.addEventListener('click', () => {
-  if(!confirm('Remover todos os lembretes?')) return
-  // clear timers
-  for(const id in timers){
-    clearTimeout(timers[id].timeout)
-    clearInterval(timers[id].interval)
-  }
-  timers = {}
-  meds = []
-  localStorage.removeItem(STORAGE_KEY)
-  renderList()
-})
-
-// test now (dispara o overlay com os dados do formulário)
-testNowBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim() || 'MEDICAMENTO'
-  const qty = qtyInput.value.trim() || '1 unidade'
-  const img = imgPreview.dataset.img || ''
-  triggerAlarm({name, qty, img, id:'test', intervalMinutes:0})
-})
-
-// mic buttons
-micName.addEventListener('click', () => startRecognition(text => nameInput.value = text))
-micQty.addEventListener('click', () => startRecognition(text => qtyInput.value = text))
-
-// taken and snooze handlers
-takenBtn.addEventListener('click', () => stopAlarmUI())
-snoozeBtn.addEventListener('click', () => {
-  stopAlarmUI()
-  // schedule adiar 10 minutos
-  const snoozeMinutes = 10
-  if(currentAlarmMed){
-    const med = currentAlarmMed
-    const id = med.id + '_snooze_' + Date.now()
-    const timeout = setTimeout(() => {
-      triggerAlarm(med)
-      delete timers[id]
-    }, snoozeMinutes * 60 * 1000)
-    timers[id] = {timeout, interval:null}
-    alert('Adiado 10 minutos')
-  }
-})
-
-let currentAlarmMed = null
-let speakInterval = null
-
-function stopAlarmUI(){
-  overlay.style.display = 'none'
-  // parar vibração (alguns devices vibrate loop will stop automatically)
-  if(navigator.vibrate) navigator.vibrate(0)
-  // parar fala
-  if(window.speechSynthesis) window.speechSynthesis.cancel()
-  // limpar speakInterval
-  if(speakInterval) { clearInterval(speakInterval); speakInterval = null }
-  currentAlarmMed = null
-}
-
-// render list
-function renderList(){
-  medList.innerHTML = ''
-  if(meds.length===0){ medList.innerHTML = '<div class="small">Nenhum lembrete cadastrado.</div>'; return }
-  meds.forEach(m => {
-    const el = document.createElement('div'); el.className='med-item'
-    el.innerHTML = `
-      <img src="${m.img}" alt="">
-      <div class="med-meta">
-        <div style="font-weight:700">${m.name}</div>
-        <div class="small">${m.qty}</div>
-        <div class="small">Inicia: ${new Date(m.start).toLocaleString()}</div>
-        <div class="small">Intervalo: ${m.intervalMinutes} min</div>
-      </div>
-      <div class="actions">
-        <button data-id="${m.id}" class="editBtn secondary">Editar</button>
-        <button data-id="${m.id}" class="delBtn secondary">Excluir</button>
-      </div>
-    `
-    medList.appendChild(el)
-  })
-  // attach events
-  document.querySelectorAll('.delBtn').forEach(b=>{
-    b.addEventListener('click', (ev)=>{
-      const id = ev.currentTarget.dataset.id
-      if(!confirm('Excluir lembrete?')) return
-      meds = meds.filter(x=>x.id!==id)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(meds))
-      // clear timer
-      if(timers[id]){ clearTimeout(timers[id].timeout); clearInterval(timers[id].interval); delete timers[id] }
-      renderList()
-    })
-  })
-  document.querySelectorAll('.editBtn').forEach(b=>{
-    b.addEventListener('click', (ev)=>{
-      const id = ev.currentTarget.dataset.id
-      const m = meds.find(x=>x.id===id)
-      if(!m) return
-      nameInput.value = m.name
-      qtyInput.value = m.qty
-      startInput.value = m.start
-      intervalInput.value = m.intervalMinutes
-      imgPreview.innerHTML = `<img src="${m.img}">`
-      imgPreview.dataset.img = m.img
-      // delete old entry
-      meds = meds.filter(x=>x.id!==id)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(meds))
-      // clear timer
-      if(timers[id]){ clearTimeout(timers[id].timeout); clearInterval(timers[id].interval); delete timers[id] }
-      renderList()
-    })
-  })
-}
-
-// schedule on load
-function scheduleAll(){
-  meds.forEach(m => scheduleMedication(m))
-}
-
-// schedule single medication
-function scheduleMedication(med){
-  // clear existing timer if any
-  if(timers[med.id]){ clearTimeout(timers[med.id].timeout); clearInterval(timers[med.id].interval); delete timers[med.id] }
-
-  // compute next trigger >= now, based on med.start and med.intervalMinutes
-  const start = new Date(med.start).getTime()
-  const intervalMs = med.intervalMinutes * 60 * 1000
-  const now = Date.now()
-  let next = start
-  if(next <= now){
-    // find next occurence after now
-    const diff = now - start
-    const cycles = Math.floor(diff / intervalMs) + 1
-    next = start + cycles * intervalMs
-  }
-
-  const delay = Math.max(0, next - now)
-  const timeout = setTimeout(() => {
-    triggerAlarm(med)
-    // create interval to repeat every intervalMs after first ring
-    const interval = setInterval(()=> triggerAlarm(med), intervalMs)
-    timers[med.id] = { timeout:null, interval }
-  }, delay)
-
-  timers[med.id] = { timeout, interval: null }
-}
-
-// trigger alarm UI + vibration + TTS + Notification
-async function triggerAlarm(med){
-  currentAlarmMed = med
-  // show overlay
-  overlayImg.src = med.img
-  overlayText.textContent = `Hora de tomar ${med.qty} de ${med.name}`
-  overlay.style.display = 'flex'
-
-  // vibrate in pattern repeatedly (some devices stop after a while)
-  if(navigator.vibrate) {
-    try {
-      navigator.vibrate([500,200,500,200])
-      // repeat vibration every 1500ms as a fallback
-      var vRepeater = setInterval(()=> navigator.vibrate([500,200,500,200]), 1500)
-      // stop when overlay closed
-      overlay.dataset.vRepeater = vRepeater
-    } catch(e){}
-  }
-
-  // speak using speechSynthesis repeatedly until user presses "TOMEI"
-  if(window.speechSynthesis){
-    const utter = new SpeechSynthesisUtterance(`Hora de tomar ${med.qty} de ${med.name}`)
-    utter.lang = 'pt-BR'
-    utter.rate = 0.95
-    window.speechSynthesis.speak(utter)
-    // repeat every 6 seconds
-    speakInterval = setInterval(() => {
-      if(window.speechSynthesis.speaking) window.speechSynthesis.cancel()
-      const u = new SpeechSynthesisUtterance(`Hora de tomar ${med.qty} de ${med.name}`)
-      u.lang = 'pt-BR'; u.rate=0.95
-      window.speechSynthesis.speak(u)
-    }, 6000)
-  }
-
-  // show web notification if permission granted
-  if(window.Notification && Notification.permission === 'granted') {
-    try {
-      const n = new Notification('Hora do remédio', {
-        body: `Hora de tomar ${med.qty} de ${med.name}`,
-        icon: med.img
-      })
-      n.onclick = () => window.focus()
-    } catch(e){ console.warn('Notification error', e) }
-  } else {
-    // try requesting permission
-    requestNotificationPermission()
-  }
-}
-
-// request notification permission
-function requestNotificationPermission(){
-  if(!('Notification' in window)) return
-  if(Notification.permission === 'default'){
-    Notification.requestPermission().then(p => {
-      console.log('Notification permission', p)
-    })
-  }
-}
-
-// clear form
-function clearForm(){
-  nameInput.value=''; qtyInput.value=''; startInput.value=''; intervalInput.value=''; imgPreview.innerHTML = '<span class="small">Sem foto</span>'; delete imgPreview.dataset.img
-}
-
-// load saved meds on start and schedule
-renderList()
-scheduleAll()
-requestNotificationPermission()
-
-// try to set sensible default startTime = now + 1 min for testing
-(function setDefaultStart(){
-  const now = new Date()
-  now.setMinutes(now.getMinutes() + 1)
-  // format to YYYY-MM-DDThh:mm
-  const pad = n => n.toString().padStart(2,'0')
-  const val = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`
-  if(!startInput.value) startInput.value = val
-})()
-
-// helper: when closing overlay, clear vibration repeater
-overlay.addEventListener('click', (e) => {
-  // prevent outside clicks
-  e.stopPropagation()
-})
-takenBtn.addEventListener('click', ()=> {
-  // stop potential vibration repeater
-  const vr = overlay.dataset.vRepeater
-  if(vr) clearInterval(vr)
-  stopAlarmUI()
-})
-
-// ---- handle page visibility: when tab reopened, reschedule timers (in case of sleep)
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible'){
-    // re-schedule meds to ensure timers correct
-    for(const id in timers){
-      if(timers[id].timeout) clearTimeout(timers[id].timeout)
-      if(timers[id].interval) clearInterval(timers[id].interval)
-    }
-    timers = {}
-    scheduleAll()
-  }
-})
-
-</script>
+  <!-- JS -->
+  <script src="app.js"></script>
 </body>
 </html>
