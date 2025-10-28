@@ -1,61 +1,65 @@
-// service-worker.js
-const CACHE_NAME = 'lembrete-medicamentos-v1';
+// === CuidaBem - Service Worker v2 ===
+const CACHE_NAME = "meu remedio";
 const FILES_TO_CACHE = [
-  'index.html',
-  'manifest.json',
-  'icons/icon-192.png',
-  'icons/icon-512.png'
+  "/index.html",
+  "/style.css",
+  "/app.js",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png"
 ];
 
-self.addEventListener('install', event => {
-  console.log('SW: instalando...');
+// Instala o SW e adiciona arquivos ao cache
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
-  console.log('SW: ativado');
+// Ativa e remove caches antigos
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => (k !== CACHE_NAME) ? caches.delete(k) : null)))
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => (k !== CACHE_NAME ? caches.delete(k) : null)))
+    )
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(caches.match(event.request).then(resp => resp || fetch(event.request)));
+// Responde com cache ou rede
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => resp || fetch(event.request))
+  );
 });
 
-// Quando receber mensagem do cliente, mostra notificação
-self.addEventListener('message', event => {
+// Mostra notificações locais
+self.addEventListener("message", event => {
   const data = event.data;
-  if(!data) return;
-  if(data.type === 'SHOW_NOTIFICATION') {
-    const title = data.title || 'Alerta';
-    const body = data.body || '';
-    const icon = data.icon || 'icons/icon-192.png';
-    const options = {
-      body,
-      icon,
-      badge: 'icons/icon-192.png',
-      vibrate: [200,100,200],
-      requireInteraction: true,
-      data: data.data || {}
-    };
-    self.registration.showNotification(title, options);
+  if (!data) return;
+  if (data.type === "SHOW_NOTIFICATION") {
+    self.registration.showNotification(data.title || "Lembrete CuidaBem", {
+      body: data.body || "",
+      icon: data.icon || "/icon-192.png",
+      vibrate: [200, 100, 200],
+      badge: "/icon-192.png",
+      requireInteraction: true
+    });
   }
 });
 
-self.addEventListener('notificationclick', event => {
+// Clique na notificação
+self.addEventListener("notificationclick", event => {
   event.notification.close();
-  // Se o usuário clicou em notificação, abre o app
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      if(clientList.length > 0){
-        const client = clientList[0];
-        return client.focus();
+    clients.matchAll({ type: "window" }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes("index.html") && "focus" in client) {
+          return client.focus();
+        }
       }
-      return clients.openWindow('index.html');
+      if (clients.openWindow) return clients.openWindow("/index.html");
     })
   );
 });
