@@ -2,83 +2,320 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Lembrete de Medicamentos (PWA)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Lembrete de Medicamentos</title>
 
-<!-- Manifest / PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d9488">
 <link rel="icon" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-512.png">
 
-<!-- CSS -->
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="container">
-    <header>
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-        <rect width="24" height="24" rx="6" fill="#0d9488"/>
-      </svg>
-      <div>
-        <h1>Lembrete de Medicamentos (PWA)</h1>
-        <div class="small">Fale, fotografe e agende lembretes com som e vibração</div>
-      </div>
-    </header>
 
-    <div class="card" id="formCard">
-      <label for="name">Nome do medicamento</label>
-      <div class="row">
-        <input id="name" type="text" placeholder="Ex: Paracetamol" />
-        <button id="micName" title="Falar nome">🎙️</button>
-      </div>
-
-      <label for="quantity">Quantidade / Dose</label>
-      <div class="row">
-        <input id="quantity" type="text" placeholder="Ex: 2 comprimidos" />
-        <button id="micQty" title="Falar quantidade">🎙️</button>
-      </div>
-
-      <label for="startTime">A partir de (data e hora)</label>
-      <input id="startTime" type="datetime-local" />
-
-      <label for="interval">Intervalo (em minutos)</label>
-      <input id="interval" type="number" placeholder="Ex: 480 (8 horas)" min="1" />
-
-      <label>Foto do remédio (capturar com câmera)</label>
-      <div class="row" style="align-items:center;">
-        <div class="image-preview" id="imgPreview"><span class="small">Sem foto</span></div>
-        <input id="photo" type="file" accept="image/*" capture="environment" />
-      </div>
-
-      <div class="row">
-        <button id="saveBtn">Salvar lembrete</button>
-        <button id="testNow" class="secondary">Testar agora</button>
-        <button id="clearAll" class="secondary">Limpar</button>
-      </div>
-      <div class="small">Permita notificações, microfone e câmera quando solicitado.</div>
-    </div>
-
-    <div class="card">
-      <h3>Meus lembretes</h3>
-      <div id="medList" class="med-list"></div>
-    </div>
-
-    <footer>Use Chrome no Android para melhor compatibilidade.</footer>
-  </div>
-
-  <!-- Overlay do alarme -->
-  <div id="overlay" class="overlay" style="display:none">
-    <div class="overlay-card">
-      <img id="overlayImg" src="" alt="remédio" />
-      <div class="big" id="overlayText">Hora de tomar ...</div>
-      <button id="takenBtn" class="danger-btn">TOMEI O REMÉDIO</button>
-      <button id="snoozeBtn" class="secondary" style="margin-top:8px">Adiar 10 minutos</button>
+<!-- ONBOARDING -->
+<div id="onboarding" class="onboarding">
+  
+  <div class="slide active" data-slide="0">
+    <div class="slide-content">
+      <div class="icon-header">💊</div>
+      <h1>Bem-vindo!</h1>
+      <p>Vamos configurar seus lembretes de medicamentos de forma simples e rápida.</p>
+      <button class="btn-primary" onclick="nextSlide()">Começar</button>
     </div>
   </div>
 
-  <!-- JS -->
+  <div class="slide" data-slide="1">
+    <div class="slide-content">
+      <div class="icon-header">👤</div>
+      <h2>Como você quer ser chamado?</h2>
+      <p class="small-text">Usaremos seu nome nos alertas</p>
+      
+      <div class="input-group">
+        <input id="usernameSlide" type="text" placeholder="Digite seu nome" class="input-large" />
+        <button class="btn-voice" onclick="voiceInput('usernameSlide')" title="Usar voz">🎤</button>
+      </div>
+      
+      <div class="slide-actions">
+        <button class="btn-secondary" onclick="prevSlide()">Voltar</button>
+        <button class="btn-primary" onclick="saveUsername()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="2">
+    <div class="slide-content">
+      <div class="icon-header">📋</div>
+      <h2>Termos de Consentimento</h2>
+      
+      <div class="terms-box">
+        <p><strong>Termo de Uso e Privacidade</strong></p>
+        <p>Este aplicativo armazena informações sobre seus medicamentos localmente no seu dispositivo. Ao usar este app, você concorda em:</p>
+        <ul>
+          <li>Permitir notificações e alertas sonoros</li>
+          <li>Armazenar dados de medicamentos no dispositivo</li>
+          <li>Permitir acesso ao microfone para comandos de voz</li>
+          <li>Permitir acesso à câmera para fotos dos medicamentos</li>
+        </ul>
+        <p><strong>Importante:</strong> Este app é apenas um lembrete. Consulte sempre seu médico sobre medicações.</p>
+      </div>
+
+      <button class="btn-icon" onclick="speakTerms()" title="Ouvir os termos">🔊 Ouvir os Termos</button>
+      
+      <div class="slide-actions">
+        <button class="btn-secondary" onclick="prevSlide()">Voltar</button>
+        <button class="btn-primary" onclick="acceptTerms()">✓ Aceito</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="3">
+    <div class="slide-content">
+      <div class="icon-header">🔔</div>
+      <h2>Permissões Necessárias</h2>
+      <p>Para funcionar corretamente, precisamos de:</p>
+      
+      <div class="permission-list">
+        <div class="permission-item">
+          <span class="permission-icon">🔔</span>
+          <div>
+            <strong>Notificações</strong>
+            <p>Para alertar sobre os medicamentos</p>
+          </div>
+        </div>
+        <div class="permission-item">
+          <span class="permission-icon">🎤</span>
+          <div>
+            <strong>Microfone</strong>
+            <p>Para comandos de voz</p>
+          </div>
+        </div>
+        <div class="permission-item">
+          <span class="permission-icon">📸</span>
+          <div>
+            <strong>Câmera</strong>
+            <p>Para fotos dos medicamentos</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="slide-actions">
+        <button class="btn-secondary" onclick="prevSlide()">Voltar</button>
+        <button class="btn-primary" onclick="requestPermissions()">Conceder Permissões</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="mainApp" class="main-app" style="display:none;">
+  
+  <header class="app-header">
+    <div class="header-content">
+      <div class="header-icon">💊</div>
+      <div class="header-text">
+        <h1>Meus Lembretes</h1>
+        <p id="userGreeting">Olá!</p>
+      </div>
+    </div>
+    <button class="btn-icon-only" onclick="showSettings()">⚙️</button>
+  </header>
+
+  <div class="content-wrapper">
+    <div id="medList" class="med-list-mobile"></div>
+    
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔭</div>
+      <h3>Nenhum lembrete ainda</h3>
+      <p>Adicione seu primeiro medicamento!</p>
+    </div>
+  </div>
+
+  <button class="fab" onclick="startAddMed()">
+    <span class="fab-icon">+</span>
+  </button>
+
+  <div id="settingsPanel" class="bottom-panel">
+    <div class="panel-header">
+      <h3>Configurações</h3>
+      <button class="btn-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="panel-content">
+      <button class="btn-panel-option" onclick="testAlarm()">
+        🔔 Testar Alarme
+      </button>
+      <button class="btn-panel-option danger" onclick="clearAllData()">
+        🗑️ Limpar Tudo
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- WIZARD -->
+<div id="addMedWizard" class="wizard" style="display:none;">
+  
+  <div class="wizard-progress">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-text" id="progressText">1 de 6</p>
+  </div>
+
+  <div class="wizard-slide active" data-wizard="0">
+    <div class="wizard-content">
+      <h2>Nome do Medicamento</h2>
+      <p class="wizard-subtitle">Qual remédio você precisa tomar?</p>
+      
+      <div class="input-group">
+        <input id="medName" type="text" placeholder="Ex: Amoxicilina" class="input-large" />
+        <button class="btn-voice" onclick="voiceInput('medName')">🎤</button>
+      </div>
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="cancelAddMed()">Cancelar</button>
+        <button class="btn-primary" onclick="nextWizard()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-slide" data-wizard="1">
+    <div class="wizard-content">
+      <h2>Dose / Quantidade</h2>
+      <p class="wizard-subtitle">Quantos comprimidos ou qual dose?</p>
+      
+      <div class="input-group">
+        <input id="medQuantity" type="text" placeholder="Ex: 1 cápsula" class="input-large" />
+        <button class="btn-voice" onclick="voiceInput('medQuantity')">🎤</button>
+      </div>
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="prevWizard()">Voltar</button>
+        <button class="btn-primary" onclick="nextWizard()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-slide" data-wizard="2">
+    <div class="wizard-content">
+      <h2>Quando Começar?</h2>
+      <p class="wizard-subtitle">Data e hora do primeiro alarme</p>
+      
+      <input id="medStartTime" type="datetime-local" class="input-datetime" />
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="prevWizard()">Voltar</button>
+        <button class="btn-primary" onclick="nextWizard()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-slide" data-wizard="3">
+    <div class="wizard-content">
+      <h2>Intervalo de Repetição</h2>
+      <p class="wizard-subtitle">De quanto em quanto tempo tomar?</p>
+      
+      <input id="medInterval" type="time" class="input-time" value="00:00" />
+      <p class="small-text">Ex: 08:00 = a cada 8 horas | 00:00 = uso único</p>
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="prevWizard()">Voltar</button>
+        <button class="btn-primary" onclick="nextWizard()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-slide" data-wizard="4">
+    <div class="wizard-content">
+      <h2>Lembretes Antecipados</h2>
+      <p class="wizard-subtitle">Avisar antes do horário?</p>
+      
+      <div class="checkbox-list">
+        <label class="checkbox-item">
+          <input type="checkbox" id="remind5Wizard" />
+          <span class="checkbox-custom"></span>
+          <span>5 minutos antes</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="remind3Wizard" />
+          <span class="checkbox-custom"></span>
+          <span>3 minutos antes</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="remind1Wizard" />
+          <span class="checkbox-custom"></span>
+          <span>1 minuto antes</span>
+        </label>
+      </div>
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="prevWizard()">Voltar</button>
+        <button class="btn-primary" onclick="nextWizard()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-slide" data-wizard="5">
+    <div class="wizard-content">
+      <h2>Foto do Medicamento</h2>
+      <p class="wizard-subtitle">Opcional: tire uma foto para facilitar</p>
+      
+      <div class="photo-preview" id="photoPreview">
+        <span class="photo-placeholder">📷</span>
+      </div>
+      
+      <input id="medPhoto" type="file" accept="image/*" capture="environment" style="display:none;" onchange="previewPhoto()" />
+      <button class="btn-photo" onclick="document.getElementById('medPhoto').click()">
+        📸 Tirar Foto
+      </button>
+      
+      <div class="wizard-actions">
+        <button class="btn-secondary" onclick="prevWizard()">Voltar</button>
+        <button class="btn-primary" onclick="saveMedication()">✓ Salvar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Overlay ALARME -->
+<div id="overlay" class="overlay-mobile" style="display:none">
+  <div class="overlay-content alarm-overlay">
+    <div class="overlay-header alarm-header">
+      <div class="alarm-pulse">🚨</div>
+      <h2>HORA DE TOMAR!</h2>
+    </div>
+    <img id="overlayImg" src="" alt="medicamento" class="overlay-image" />
+    <p class="overlay-text" id="overlayText">Hora de tomar...</p>
+    
+    <div class="overlay-buttons">
+      <button id="takenBtn" class="btn-overlay-primary">✅ Tomei</button>
+      <button id="postpone30" class="btn-overlay-secondary">⏰ +30 min</button>
+      <button id="postpone60" class="btn-overlay-secondary">⏰ +1 hora</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay LEMBRETE -->
+<div id="reminderOverlay" class="overlay-mobile" style="display:none">
+  <div class="overlay-content reminder-overlay-content">
+    <div class="overlay-header reminder-header">
+      <div class="reminder-pulse">⏰</div>
+      <h2>LEMBRETE</h2>
+    </div>
+    <img id="reminderImg" src="" alt="medicamento" class="overlay-image" />
+    <p class="overlay-text" id="reminderText">Faltam minutos...</p>
+    
+    <div class="overlay-buttons">
+      <button id="reminderOkBtn" class="btn-overlay-primary">OK, Entendi</button>
+    </div>
+  </div>
+</div>
+
+
   <script src="app.js"></script>
 </body>
 </html>
